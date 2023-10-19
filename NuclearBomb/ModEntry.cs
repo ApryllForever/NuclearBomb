@@ -19,6 +19,8 @@ using StardewValley.Monsters;
 
 
 
+using SpaceCore.Events;
+using SpaceCore.Interface;
 
 
 
@@ -41,7 +43,7 @@ namespace NuclearBombs
             Helper = helper;
 
             helper.Events.GameLoop.GameLaunched += OnGameLaunched;
-
+            //SpaceEvents.BombExploded += OnBombExploded;
 
 
                                //Attempt using code based on Elizabeth's Pearl Code (Thx luv!!!). Complete Triumph!!!
@@ -62,11 +64,11 @@ namespace NuclearBombs
                postfix: new HarmonyMethod(typeof(ModEntry), nameof(ModEntry.IsPlaceable_Postfix))
             );
 
-            // Meddle with the Explosion
-            harmony.Patch(
-               original: AccessTools.Method(typeof(StardewValley.TemporaryAnimatedSprite), nameof(StardewValley.TemporaryAnimatedSprite.update)),
-               prefix: new HarmonyMethod(typeof(ModEntry), nameof(ModEntry.update_Prefix))
-            );
+             // Meddle with the Explosion
+            //harmony.Patch(
+              // original: AccessTools.Method(typeof(StardewValley.TemporaryAnimatedSprite), nameof(StardewValley.TemporaryAnimatedSprite.update)),
+              // prefix: new HarmonyMethod(typeof(ModEntry), nameof(ModEntry.update_Prefix))
+            //);
 
 
 
@@ -77,11 +79,18 @@ namespace NuclearBombs
 
             //NuclearBomb.Initialize(this);
 
-
-
         }
 
-       
+       //public static void OnBombExploded(object sender, EventArgsBombExploded e)
+        //{
+
+
+
+
+        //}
+
+
+
         private static void CanBePlacedHere_Postfix(StardewValley.Object __instance, GameLocation l, Vector2 tile, ref bool __result)
         {
             // Not our item, we don't care
@@ -171,7 +180,7 @@ namespace NuclearBombs
 
 
 
-        private static bool update_Prefix(TemporaryAnimatedSprite __instance, GameTime time, GameLocation parent, float totalTimer, float pulseTimer, float originalScale)
+        private static bool update_Prefix(TemporaryAnimatedSprite __instance, GameTime time, float totalTimer, float pulseTimer, float originalScale)
         {
 
     
@@ -474,37 +483,6 @@ namespace NuclearBombs
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         private static void IsPlaceable_Postfix(StardewValley.Object __instance, ref bool __result)
         {
             if (__instance.Name.Contains(NukulerBomb, StringComparison.OrdinalIgnoreCase))
@@ -526,7 +504,7 @@ namespace NuclearBombs
             int idNum = Game1.random.Next();
             location.playSound("thudStep");
 
-           
+            Game1.changeMusicTrack("none", false, StardewValley.GameData.MusicContext.Default);
 
             StardewValley.Object Nukebomb = new StardewValley.Object("ApryllForever.NuclearBombCP_NuclearBomb", 1);
 
@@ -544,6 +522,7 @@ namespace NuclearBombs
             //Game1.currentLocation.playSound("ApryllForever.NuclearBomb_Blast", null, null, StardewValley.Audio.SoundContext.Default);
             Game1.Multiplayer.broadcastSprites(location, pearlTAS);
             //location.netAudio.StartPlaying("fuse");
+            DelayedAction.playSoundAfterDelay("ApryllForever.NuclearBomb_Blast", 11000, Game1.player.currentLocation, null);
 
 
             return true;
