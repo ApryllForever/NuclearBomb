@@ -21,6 +21,9 @@ using StardewValley.Monsters;
 
 using SpaceCore.Events;
 using SpaceCore.Interface;
+using StardewValley.TerrainFeatures;
+using xTile.Tiles;
+
 
 
 
@@ -508,19 +511,85 @@ namespace NuclearBombs
 
             StardewValley.Object Nukebomb = new StardewValley.Object("ApryllForever.NuclearBombCP_NuclearBomb", 1);
 
-            TemporaryAnimatedSprite pearlTAS = new TemporaryAnimatedSprite(Nukebomb.parentSheetIndex, 100f, 1, 24, placementTile * 64f, flicker: true, flipped: false, location, who)
+            TemporaryAnimatedSprite TAS = new TemporaryAnimatedSprite(Nukebomb.parentSheetIndex, 100f, 1, 24, placementTile * 64f, flicker: true, flipped: false, location, who)
             {
                 delayBeforeAnimationStart = 11000,
                 bombRadius = 37,
                 bombDamage = 999,
                 shakeIntensity = 5f,
                 shakeIntensityChange = 0.2f,
+                
                 extraInfoForEndBehavior = idNum,
                 endFunction = location.removeTemporarySpritesWithID
-                
             };
+
+            int radius = 37;
+
+            Microsoft.Xna.Framework.Rectangle areaOfEffect = new Microsoft.Xna.Framework.Rectangle((int)(placementTile.X - (float)radius) * 64, (int)(placementTile.Y - (float)radius) * 64, (radius * 2 + 1) * 64, (radius * 2 + 1) * 64);
+
+
+            //for (int k = location.largeTerrainFeatures.Count() - 1; k >= 0; k--)
+            // {
+
+            NetCollection<LargeTerrainFeature> netCollection;
+            netCollection = location.largeTerrainFeatures;
+            if (netCollection != null && netCollection.Count > 0)
+
+
+
+                //KeyValuePair<Vector2, LargeTerrainFeature> n = location.largeTerrainFeatures.ElementAt(k);
+               
+
+                    {
+                foreach (LargeTerrainFeature largeTerrainFeature in location.largeTerrainFeatures) //gives weird error
+                {
+
+                    if (largeTerrainFeature.getBoundingBox().Intersects(areaOfEffect))
+                    {
+                        for (int j = location.largeTerrainFeatures.Count - 1; j >= 0; j--)
+                        {
+                            
+                                location.largeTerrainFeatures.RemoveAt(j);  //Not really working
+                            
+                        }
+
+                    }
+            
+
+                }
+            }
+
+
+            /*
+            int tileX;
+            tileX = x / 64;
+            int tileY;
+            tileY = y / 64;
+            Rectangle tileRect;
+            tileRect = new Rectangle(tileX * 64, tileY * 64, 64, 64);
+            Vector2 tile;
+            tile = new Vector2(tileX, tileY);
+
+
+
+            if (location.terrainFeatures.TryGetValue(tile, out var terrainFeature) )
+            {
+                location.terrainFeatures.Remove(tile);
+            }
+            if (location.largeTerrainFeatures != null)
+            {
+                for (int i = location.largeTerrainFeatures.Count - 1; i >= 0; i--)
+                {
+                    LargeTerrainFeature largeFeature;
+                    largeFeature = location.largeTerrainFeatures[i];
+                   
+                        location.largeTerrainFeatures.RemoveAt(i);
+                    
+                }
+            }  */
+
             //Game1.currentLocation.playSound("ApryllForever.NuclearBomb_Blast", null, null, StardewValley.Audio.SoundContext.Default);
-            Game1.Multiplayer.broadcastSprites(location, pearlTAS);
+            Game1.Multiplayer.broadcastSprites(location, TAS);
             //location.netAudio.StartPlaying("fuse");
             DelayedAction.playSoundAfterDelay("ApryllForever.NuclearBomb_Blast", 11000, Game1.player.currentLocation, null);
 
