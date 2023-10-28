@@ -26,6 +26,7 @@ using xTile.Tiles;
 using xTile;
 using StardewValley.Tools;
 using StardewValley.Network;
+using System.Reflection;
 
 namespace NuclearBombs
 {
@@ -36,6 +37,7 @@ namespace NuclearBombs
         internal new static IModHelper? Helper { get; set; }
 
         private float totalTimer;
+        private static bool x2;
 
         public override void Entry(IModHelper helper)
         {
@@ -192,19 +194,31 @@ namespace NuclearBombs
 
             //Microsoft.Xna.Framework.Rectangle areaOfEffect = ????????;
 
-            for (int i = location.resourceClumps.Count - 1; i >= 0; i--)
+            DelayedAction.functionAfterDelay(delegate
             {
-                ResourceClump feature = location.resourceClumps[i];
-                if (feature is ResourceClump bush //&& bush.getBoundingBox().Contains(areaOfEffect)
-                    && bush.parentSheetIndex.Value == 600)
-                {
-                    bush.health.Value = -1f;
-                    Axe axe = new() { UpgradeLevel = 3 };
-                    bush.performToolAction(axe, 999, bush.Tile);
-                    location.resourceClumps.RemoveAt(i);
-                }
-            }
 
+
+
+                for (int i = location.resourceClumps.Count - 1; i >= 0; i--)
+                {
+                    ResourceClump feature = location.resourceClumps[i];
+                    if (feature is ResourceClump bush //&& bush.getBoundingBox().Contains(areaOfEffect)
+                        && bush.parentSheetIndex.Value == 600)
+                    {
+                        bush.health.Value = -1f;
+                        Axe axe = new() { UpgradeLevel = 3 };
+
+                        FieldInfo lastUserField = AccessTools.Field(typeof(Axe), "lastUser");
+                        lastUserField.SetValue(axe, Game1.player);
+
+
+                        bool x2 = axe.getLastFarmerToUse() == Game1.player;
+                        bush.performToolAction(axe, 999, bush.Tile);
+                        location.resourceClumps.RemoveAt(i);
+                    }
+                }
+            },
+            11100);
             Game1.Multiplayer.broadcastSprites(location, TAS);
             DelayedAction.playSoundAfterDelay("ApryllForever.NuclearBomb_Blast", 11000, Game1.player.currentLocation, null);
 
