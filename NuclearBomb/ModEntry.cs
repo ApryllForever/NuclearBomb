@@ -23,9 +23,9 @@ using SpaceCore.Events;
 using SpaceCore.Interface;
 using StardewValley.TerrainFeatures;
 using xTile.Tiles;
-
-
-
+using xTile;
+using StardewValley.Tools;
+using StardewValley.Network;
 
 namespace NuclearBombs
 {
@@ -45,9 +45,8 @@ namespace NuclearBombs
             ModMonitor = Monitor;
             Helper = helper;
 
-            helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+            //helper.Events.GameLoop.GameLaunched += OnGameLaunched;
             //SpaceEvents.BombExploded += OnBombExploded;
-
 
                                //Attempt using code based on Elizabeth's Pearl Code (Thx luv!!!). Complete Triumph!!!
             harmony.Patch(
@@ -67,32 +66,18 @@ namespace NuclearBombs
                postfix: new HarmonyMethod(typeof(ModEntry), nameof(ModEntry.IsPlaceable_Postfix))
             );
 
-             // Meddle with the Explosion
-            //harmony.Patch(
-              // original: AccessTools.Method(typeof(StardewValley.TemporaryAnimatedSprite), nameof(StardewValley.TemporaryAnimatedSprite.update)),
-              // prefix: new HarmonyMethod(typeof(ModEntry), nameof(ModEntry.update_Prefix))
-            //);
-
-
-
+            
         }
 
-        private void OnGameLaunched(object sender, EventArgs e)
-        {
-
+       // private void OnGameLaunched(object sender, EventArgs e)
+        //{
             //NuclearBomb.Initialize(this);
-
-        }
+        //}
 
        //public static void OnBombExploded(object sender, EventArgsBombExploded e)
         //{
 
-
-
-
         //}
-
-
 
         private static void CanBePlacedHere_Postfix(StardewValley.Object __instance, GameLocation l, Vector2 tile, ref bool __result)
         {
@@ -118,7 +103,6 @@ namespace NuclearBombs
         {
 
             Vector2 placementTile = new Vector2(x, y);
-
             Game1.player.Position = placementTile;
 
             // Not our item, we don't care
@@ -128,17 +112,11 @@ namespace NuclearBombs
             }
             else
             {
-                foreach (TemporaryAnimatedSprite temporarySprite3 in location.temporarySprites)
-                {
-                    if (temporarySprite3.position.Equals(placementTile * 64f))
-                    {
-                        return false;
-                    }
-                }
-                Game1.player.currentLocation = location;
+               
+               /*
                 int idNum;
                 idNum = Game1.random.Next();
-                location.playSound("thudStep");
+               
                 Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(__instance.ParentSheetIndex, 100f, 1, 24, placementTile * 64f, flicker: true, flipped: false, location, who)
                 {
                     shakeIntensity = 0.5f,
@@ -159,333 +137,20 @@ namespace NuclearBombs
                 {
                     delayBeforeAnimationStart = 200,
                     id = idNum
-                });
-                //location.netAudio.StartPlaying("fuse");
+                });  */
+
                 Game1.currentLocation.playSound("ApryllForever.NuclearBomb_Siren", null, null, StardewValley.Audio.SoundContext.Default);
 
+                //DoNukulerExplosionAnimation(location, x, y, who);
 
-                DoNukulerExplosionAnimation(location, x, y, who);
-
-                //bool success = DoNukulerExplosionAnimation(location, x, y, who);
-                //if (success)
-                //{
+                bool success = DoNukulerExplosionAnimation(location, x, y, who);
+                if (success)
+                {
                 __result = true;
-                //}
+                }
                 return false;
             }
         }
-
-
-
-
-
-
-
-
-
-        private static bool update_Prefix(TemporaryAnimatedSprite __instance, GameTime time, float totalTimer, float pulseTimer, float originalScale)
-        {
-
-    
-
-            // Not our item, we don't care
-            if (Game1.player.CurrentItem.Name.Contains(NukulerBomb, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-            else
-            {
-               
-
-                if (__instance.paused)
-                {
-                    return false;
-                }
-                if (__instance.bombRadius > 0 && !Game1.shouldTimePass())
-                {
-                    return false;
-                }
-                if (__instance.ticksBeforeAnimationStart > 0)
-                {
-                    __instance.ticksBeforeAnimationStart--;
-                    return false;
-                }
-                if (__instance.delayBeforeAnimationStart > 0)
-                {
-                    __instance.delayBeforeAnimationStart -= time.ElapsedGameTime.Milliseconds;
-                    if (__instance.delayBeforeAnimationStart <= 0 && __instance.startSound != null)
-                    {
-                        Game1.playSound(__instance.startSound);
-                    }
-                    if (__instance.delayBeforeAnimationStart <= 0 && __instance.parentSprite != null)
-                    {
-                        __instance.position = __instance.parentSprite.position + __instance.position;
-                    }
-                    return false;
-                }
-                __instance.timer += time.ElapsedGameTime.Milliseconds;
-                totalTimer += time.ElapsedGameTime.Milliseconds;
-                __instance.alpha -= __instance.alphaFade * (float)((!__instance.timeBasedMotion) ? 1 : time.ElapsedGameTime.Milliseconds);
-                __instance.alphaFade -= __instance.alphaFadeFade * (float)((!__instance.timeBasedMotion) ? 1 : time.ElapsedGameTime.Milliseconds);
-                if (__instance.alphaFade > 0f && __instance.light && __instance.alpha < 1f && __instance.alpha >= 0f)
-                {
-                    LightSource ls;
-                    ls = Utility.getLightSource(__instance.lightID);
-                    if (ls != null)
-                    {
-                        ls.color.A = (byte)(255f * __instance.alpha);
-                    }
-                }
-                __instance.shakeIntensity += __instance.shakeIntensityChange * (float)time.ElapsedGameTime.Milliseconds;
-                __instance.scale += __instance.scaleChange * (float)((!__instance.timeBasedMotion) ? 1 : time.ElapsedGameTime.Milliseconds);
-                __instance.scaleChange += __instance.scaleChangeChange * (float)((!__instance.timeBasedMotion) ? 1 : time.ElapsedGameTime.Milliseconds);
-                __instance.rotation += __instance.rotationChange;
-                if (__instance.xPeriodic)
-                {
-                    __instance.position.X = __instance.initialPosition.X + __instance.xPeriodicRange * (float)Math.Sin(Math.PI * 2.0 / (double)__instance.xPeriodicLoopTime * (double)totalTimer);
-                }
-                else
-                {
-                    __instance.position.X += __instance.motion.X * (float)((!__instance.timeBasedMotion) ? 1 : time.ElapsedGameTime.Milliseconds);
-                }
-                if (__instance.yPeriodic)
-                {
-                    __instance.position.Y = __instance.initialPosition.Y + __instance.yPeriodicRange * (float)Math.Sin(Math.PI * 2.0 / (double)__instance.yPeriodicLoopTime * (double)(totalTimer + __instance.yPeriodicLoopTime / 2f));
-                }
-                else
-                {
-                    __instance.position.Y += __instance.motion.Y * (float)((!__instance.timeBasedMotion) ? 1 : time.ElapsedGameTime.Milliseconds);
-                }
-                if (__instance.attachedCharacter != null && !__instance.positionFollowsAttachedCharacter)
-                {
-                    if (__instance.xPeriodic)
-                    {
-                        __instance.attachedCharacter.position.X = __instance.initialPosition.X + __instance.xPeriodicRange * (float)Math.Sin(Math.PI * 2.0 / (double)__instance.xPeriodicLoopTime * (double)totalTimer);
-                    }
-                    else
-                    {
-                        __instance.attachedCharacter.position.X += __instance.motion.X * (float)((!__instance.timeBasedMotion) ? 1 : time.ElapsedGameTime.Milliseconds);
-                    }
-                    if (__instance.yPeriodic)
-                    {
-                        __instance.attachedCharacter.position.Y = __instance.initialPosition.Y + __instance.yPeriodicRange * (float)Math.Sin(Math.PI * 2.0 / (double)__instance.yPeriodicLoopTime * (double)totalTimer);
-                    }
-                    else
-                    {
-                        __instance.attachedCharacter.position.Y += __instance.motion.Y * (float)((!__instance.timeBasedMotion) ? 1 : time.ElapsedGameTime.Milliseconds);
-                    }
-                }
-                int sign;
-                sign = Math.Sign(__instance.motion.X);
-                __instance.motion.X += __instance.acceleration.X * (float)((!__instance.timeBasedMotion) ? 1 : time.ElapsedGameTime.Milliseconds);
-                if (__instance.stopAcceleratingWhenVelocityIsZero && Math.Sign(__instance.motion.X) != sign)
-                {
-                    __instance.motion.X = 0f;
-                    __instance.acceleration.X = 0f;
-                }
-                sign = Math.Sign(__instance.motion.Y);
-                __instance.motion.Y += __instance.acceleration.Y * (float)((!__instance.timeBasedMotion) ? 1 : time.ElapsedGameTime.Milliseconds);
-                if (__instance.stopAcceleratingWhenVelocityIsZero && Math.Sign(__instance.motion.Y) != sign)
-                {
-                    __instance.motion.Y = 0f;
-                    __instance.acceleration.Y = 0f;
-                }
-                __instance.acceleration.X += __instance.accelerationChange.X;
-                __instance.acceleration.Y += __instance.accelerationChange.Y;
-                if (__instance.xStopCoordinate != -1 || __instance.yStopCoordinate != -1)
-                {
-                    int oldY;
-                    oldY = (int)__instance.motion.Y;
-                    if (__instance.xStopCoordinate != -1 && Math.Abs(__instance.position.X - (float)__instance.xStopCoordinate) <= Math.Abs(__instance.motion.X))
-                    {
-                        __instance.motion.X = 0f;
-                        __instance.acceleration.X = 0f;
-                        __instance.xStopCoordinate = -1;
-                    }
-                    if (__instance.yStopCoordinate != -1 && Math.Abs(__instance.position.Y - (float)__instance.yStopCoordinate) <= Math.Abs(__instance.motion.Y))
-                    {
-                        __instance.motion.Y = 0f;
-                        __instance.acceleration.Y = 0f;
-                        __instance.yStopCoordinate = -1;
-                    }
-                    if (__instance.xStopCoordinate == -1 && __instance.yStopCoordinate == -1)
-                    {
-                        __instance.rotationChange = 0f;
-                        __instance.reachedStopCoordinate?.Invoke(oldY);
-                        __instance.reachedStopCoordinateSprite?.Invoke(__instance);
-                    }
-                }
-                if (!__instance.pingPong)
-                {
-                    __instance.pingPongMotion = 1;
-                }
-                if (__instance.pulse)
-                {
-                    pulseTimer -= time.ElapsedGameTime.Milliseconds;
-                    if (originalScale == 0f)
-                    {
-                        originalScale = __instance.scale;
-                    }
-                    if (pulseTimer <= 0f)
-                    {
-                        pulseTimer = __instance.pulseTime;
-                        __instance.scale = originalScale * __instance.pulseAmount;
-                    }
-                    if (__instance.scale > originalScale)
-                    {
-                        __instance.scale -= __instance.pulseAmount / 100f * (float)time.ElapsedGameTime.Milliseconds;
-                    }
-                }
-                if (__instance.light)
-                {
-                    if (!__instance.hasLit)
-                    {
-                        __instance.hasLit = true;
-                        __instance.lightID = Game1.random.Next(int.MinValue, int.MaxValue);
-                        if (__instance.Parent == null || Game1.currentLocation == __instance.Parent)
-                        {
-                            Game1.currentLightSources.Add(new LightSource(4, __instance.position + new Vector2(32f, 32f), __instance.lightRadius, __instance.lightcolor.Equals(Color.White) ? new Color(0, 65, 128) : __instance.lightcolor, __instance.lightID, LightSource.LightContext.None, 0L));
-                        }
-                    }
-                    else
-                    {
-                        Utility.repositionLightSource(__instance.lightID, __instance.position + new Vector2(32f, 32f));
-                    }
-                }
-                if (__instance.alpha <= 0f || (__instance.position.X < -2000f && !__instance.overrideLocationDestroy) || __instance.scale <= 0f)
-                {
-                    __instance.unload();
-                    return __instance.destroyable;
-                }
-                if (__instance.timer > __instance.interval)
-                {
-                    __instance.currentParentTileIndex += __instance.pingPongMotion;
-                    __instance.sourceRect.X += __instance.sourceRect.Width * __instance.pingPongMotion;
-                    if (__instance.Texture != null)
-                    {
-                        if (!__instance.pingPong && __instance.sourceRect.X >= __instance.Texture.Width)
-                        {
-                            __instance.sourceRect.Y += __instance.sourceRect.Height;
-                        }
-                        if (!__instance.pingPong)
-                        {
-                            __instance.sourceRect.X %= __instance.Texture.Width;
-                        }
-                        if (__instance.pingPong)
-                        {
-                            if ((float)__instance.sourceRect.X + ((float)__instance.sourceRect.Y - __instance.sourceRectStartingPos.Y) / (float)__instance.sourceRect.Height * (float)__instance.Texture.Width >= __instance.sourceRectStartingPos.X + (float)(__instance.sourceRect.Width * __instance.animationLength))
-                            {
-                                __instance.pingPongMotion = -1;
-                                __instance.sourceRect.X -= __instance.sourceRect.Width * 2;
-                                __instance.currentParentTileIndex--;
-                                if (__instance.sourceRect.X < 0)
-                                {
-                                    __instance.sourceRect.X = __instance.Texture.Width + __instance.sourceRect.X;
-                                }
-                            }
-                            else if ((float)__instance.sourceRect.X < __instance.sourceRectStartingPos.X && (float)__instance.sourceRect.Y == __instance.sourceRectStartingPos.Y)
-                            {
-                                __instance.pingPongMotion = 1;
-                                __instance.sourceRect.X = (int)__instance.sourceRectStartingPos.X + __instance.sourceRect.Width;
-                                __instance.currentParentTileIndex++;
-                                __instance.currentNumberOfLoops++;
-                                if (__instance.endFunction != null)
-                                {
-                                    __instance.endFunction(__instance.extraInfoForEndBehavior);
-                                    __instance.endFunction = null;
-                                }
-                                if (__instance.currentNumberOfLoops >= __instance.totalNumberOfLoops)
-                                {
-                                    __instance.unload();
-                                    return __instance.destroyable;
-                                }
-                            }
-                        }
-                        else if (__instance.totalNumberOfLoops >= 1 && (float)__instance.sourceRect.X + ((float)__instance.sourceRect.Y - __instance.sourceRectStartingPos.Y) / (float)__instance.sourceRect.Height * (float)__instance.Texture.Width >= __instance.sourceRectStartingPos.X + (float)(__instance.sourceRect.Width * __instance.animationLength))
-                        {
-                            __instance.sourceRect.X = (int)__instance.sourceRectStartingPos.X;
-                            __instance.sourceRect.Y = (int)__instance.sourceRectStartingPos.Y;
-                        }
-                    }
-                    __instance.timer = 0f;
-                    if (__instance.flicker)
-                    {
-                        if (__instance.currentParentTileIndex < 0 || __instance.flash)
-                        {
-                            __instance.currentParentTileIndex = __instance.oldCurrentParentTileIndex;
-                            __instance.flash = false;
-                        }
-                        else
-                        {
-                            __instance.oldCurrentParentTileIndex = __instance.currentParentTileIndex;
-                            if (__instance.bombRadius > 0)
-                            {
-                                __instance.flash = true;
-                            }
-                            else
-                            {
-                                __instance.currentParentTileIndex = -100;
-                            }
-                        }
-                    }
-                    if (__instance.currentParentTileIndex - __instance.initialParentTileIndex >= __instance.animationLength)
-                    {
-                        __instance.currentNumberOfLoops++;
-                        if (__instance.holdLastFrame)
-                        {
-                            __instance.currentParentTileIndex = __instance.initialParentTileIndex + __instance.animationLength - 1;
-                            if (__instance.texture != null)
-                            {
-                               // this.setSourceRectToCurrentTileIndex();
-
-                                __instance.sourceRect.X = (int)(__instance.sourceRectStartingPos.X + (float)(__instance.currentParentTileIndex * __instance.sourceRect.Width)) % __instance.texture.Width;
-                                if (__instance.sourceRect.X < 0)
-                                {
-                                    __instance.sourceRect.X = 0;
-                                }
-                                __instance.sourceRect.Y = (int)__instance.sourceRectStartingPos.Y;
-
-
-
-                            }
-                            if (__instance.endFunction != null)
-                            {
-                                __instance.endFunction(__instance.extraInfoForEndBehavior);
-                                __instance.endFunction = null;
-                            }
-                            return false;
-                        }
-                        __instance.currentParentTileIndex = __instance.initialParentTileIndex;
-                        if (__instance.currentNumberOfLoops >= __instance.totalNumberOfLoops)
-                        {
-                            if (__instance.bombRadius > 0)
-                            {
-                                if (Game1.currentLocation == __instance.Parent)
-                                {
-                                    Game1.flashAlpha = 4f;
-                                }
-                                if (Game1.IsMasterGame)
-                                {
-                                    //__instance.Parent.netAudio.StopPlaying("fuse");
-                                    __instance.Parent.playSound("ApryllForever.NuclearBomb_Blast");
-                                    __instance.Parent.explode(new Vector2((int)(__instance.position.X / 64f), (int)(__instance.position.Y / 64f)), __instance.bombRadius, __instance.owner, damageFarmers: true, __instance.bombDamage);
-                                }
-                            }
-                            __instance.unload();
-                            return __instance.destroyable;
-                        }
-                        if (__instance.bombRadius > 0 && __instance.currentNumberOfLoops == __instance.totalNumberOfLoops - 5)
-                        {
-                            __instance.interval -= __instance.interval / 3f;
-                        }
-                    }
-                }
-                return false;
-
-            }
-        }
-
-
         private static void IsPlaceable_Postfix(StardewValley.Object __instance, ref bool __result)
         {
             if (__instance.Name.Contains(NukulerBomb, StringComparison.OrdinalIgnoreCase))
@@ -504,6 +169,7 @@ namespace NuclearBombs
                     return false;
                 }
             }
+
             int idNum = Game1.random.Next();
             location.playSound("thudStep");
 
@@ -519,78 +185,27 @@ namespace NuclearBombs
                 shakeIntensity = 5f,
                 shakeIntensityChange = 0.2f,
                 
+                
                 extraInfoForEndBehavior = idNum,
                 endFunction = location.removeTemporarySpritesWithID
             };
 
-            int radius = 37;
+            //Microsoft.Xna.Framework.Rectangle areaOfEffect = ????????;
 
-            Microsoft.Xna.Framework.Rectangle areaOfEffect = new Microsoft.Xna.Framework.Rectangle((int)(placementTile.X - (float)radius) * 64, (int)(placementTile.Y - (float)radius) * 64, (radius * 2 + 1) * 64, (radius * 2 + 1) * 64);
-
-
-            //for (int k = location.largeTerrainFeatures.Count() - 1; k >= 0; k--)
-            // {
-
-            NetCollection<LargeTerrainFeature> netCollection;
-            netCollection = location.largeTerrainFeatures;
-            if (netCollection != null && netCollection.Count > 0)
-
-
-
-                //KeyValuePair<Vector2, LargeTerrainFeature> n = location.largeTerrainFeatures.ElementAt(k);
-               
-
-                    {
-                foreach (LargeTerrainFeature largeTerrainFeature in location.largeTerrainFeatures) //gives weird error
+            for (int i = location.resourceClumps.Count - 1; i >= 0; i--)
+            {
+                ResourceClump feature = location.resourceClumps[i];
+                if (feature is ResourceClump bush //&& bush.getBoundingBox().Contains(areaOfEffect)
+                    && bush.parentSheetIndex.Value == 600)
                 {
-
-                    if (largeTerrainFeature.getBoundingBox().Intersects(areaOfEffect))
-                    {
-                        for (int j = location.largeTerrainFeatures.Count - 1; j >= 0; j--)
-                        {
-                            
-                                location.largeTerrainFeatures.RemoveAt(j);  //Not really working
-                            
-                        }
-
-                    }
-            
-
+                    bush.health.Value = -1f;
+                    Axe axe = new() { UpgradeLevel = 3 };
+                    bush.performToolAction(axe, 999, bush.Tile);
+                    location.resourceClumps.RemoveAt(i);
                 }
             }
 
-
-            /*
-            int tileX;
-            tileX = x / 64;
-            int tileY;
-            tileY = y / 64;
-            Rectangle tileRect;
-            tileRect = new Rectangle(tileX * 64, tileY * 64, 64, 64);
-            Vector2 tile;
-            tile = new Vector2(tileX, tileY);
-
-
-
-            if (location.terrainFeatures.TryGetValue(tile, out var terrainFeature) )
-            {
-                location.terrainFeatures.Remove(tile);
-            }
-            if (location.largeTerrainFeatures != null)
-            {
-                for (int i = location.largeTerrainFeatures.Count - 1; i >= 0; i--)
-                {
-                    LargeTerrainFeature largeFeature;
-                    largeFeature = location.largeTerrainFeatures[i];
-                   
-                        location.largeTerrainFeatures.RemoveAt(i);
-                    
-                }
-            }  */
-
-            //Game1.currentLocation.playSound("ApryllForever.NuclearBomb_Blast", null, null, StardewValley.Audio.SoundContext.Default);
             Game1.Multiplayer.broadcastSprites(location, TAS);
-            //location.netAudio.StartPlaying("fuse");
             DelayedAction.playSoundAfterDelay("ApryllForever.NuclearBomb_Blast", 11000, Game1.player.currentLocation, null);
 
 
