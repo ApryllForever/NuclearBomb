@@ -179,6 +179,22 @@ namespace NuclearBombs
 
             StardewValley.Object Nukebomb = new StardewValley.Object("ApryllForever.NuclearBombCP_NuclearBomb", 1);
 
+
+            TemporaryAnimatedSprite TAS2 = new TemporaryAnimatedSprite(Nukebomb.parentSheetIndex, 100f, 1, 24, placementTile * 64f, flicker: true, flipped: false, location, who)
+            {
+                delayBeforeAnimationStart = 10000,
+                bombRadius = 17,
+                bombDamage = 999,
+                shakeIntensity = 5f,
+                shakeIntensityChange = 0.2f,
+                color = Color.LightGoldenrodYellow,
+
+                extraInfoForEndBehavior = idNum,
+                endFunction = location.removeTemporarySpritesWithID
+            };
+
+
+
             TemporaryAnimatedSprite TAS = new TemporaryAnimatedSprite(Nukebomb.parentSheetIndex, 100f, 1, 24, placementTile * 64f, flicker: true, flipped: false, location, who)
             {
                 delayBeforeAnimationStart = 11000,
@@ -186,6 +202,7 @@ namespace NuclearBombs
                 bombDamage = 999,
                 shakeIntensity = 5f,
                 shakeIntensityChange = 0.2f,
+                color = Color.LightCoral,
                 
                 
                 extraInfoForEndBehavior = idNum,
@@ -216,9 +233,130 @@ namespace NuclearBombs
                         bush.performToolAction(axe, 999, bush.Tile);
                         location.resourceClumps.RemoveAt(i);
                     }
+
+                    if (feature is ResourceClump bush2 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                        && bush2.parentSheetIndex.Value == 602)
+                    {
+                        bush2.health.Value = -1f;
+                        Axe axe = new() { UpgradeLevel = 3 };
+
+                        FieldInfo lastUserField = AccessTools.Field(typeof(Axe), "lastUser");
+                        lastUserField.SetValue(axe, Game1.player);
+
+
+                        bool x2 = axe.getLastFarmerToUse() == Game1.player;
+                        bush2.performToolAction(axe, 999, bush2.Tile);
+                        location.resourceClumps.RemoveAt(i);
+                    }
+                    if (feature is ResourceClump bush3 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                        && bush3.parentSheetIndex.Value == 672)
+                    {
+                        bush3.health.Value = -1f;
+                        Pickaxe pickaxe = new() { UpgradeLevel = 3 };
+
+                        FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
+                        lastUserField.SetValue(pickaxe, Game1.player);
+
+
+                        bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
+                        bush3.performToolAction(pickaxe, 999, bush3.Tile);
+                        location.resourceClumps.RemoveAt(i);
+                    }
+                    if (feature is ResourceClump bush4 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                      && bush4.parentSheetIndex.Value == 752)
+                    {
+                        bush4.health.Value = -1f;
+                        Pickaxe pickaxe = new() { UpgradeLevel = 3 };
+
+                        FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
+                        lastUserField.SetValue(pickaxe, Game1.player);
+
+
+                        bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
+                        bush4.performToolAction(pickaxe, 999, bush4.Tile);
+                        location.resourceClumps.RemoveAt(i);
+                    }
+                    if (feature is ResourceClump bush5 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                    && bush5.parentSheetIndex.Value == 754)
+                    {
+                        bush5.health.Value = -1f;
+                        Pickaxe pickaxe = new() { UpgradeLevel = 3 };
+
+                        FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
+                        lastUserField.SetValue(pickaxe, Game1.player);
+
+
+                        bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
+                        bush5.performToolAction(pickaxe, 999, bush5.Tile);
+                        location.resourceClumps.RemoveAt(i);
+                    }
+
+                    if (feature is ResourceClump bush6 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                   && bush6.parentSheetIndex.Value == 756)
+                    {
+                        bush6.health.Value = -1f;
+                        Pickaxe pickaxe = new() { UpgradeLevel = 3 };
+
+                        FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
+                        lastUserField.SetValue(pickaxe, Game1.player);
+
+
+                        bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
+                        bush6.performToolAction(pickaxe, 999, bush6.Tile);
+                        location.resourceClumps.RemoveAt(i);
+                    }
+                    if (feature is ResourceClump bush7 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                   && bush7.parentSheetIndex.Value == 758)
+                    {
+                        bush7.health.Value = -1f;
+                        Pickaxe pickaxe = new() { UpgradeLevel = 3 };
+
+                        FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
+                        lastUserField.SetValue(pickaxe, Game1.player);
+
+
+                        bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
+                        bush7.performToolAction(pickaxe, 999, bush7.Tile);
+                        location.resourceClumps.RemoveAt(i);
+                    }
+                    if (feature is ResourceClump bush8 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                   && bush8.parentSheetIndex.Value == 622)
+                    {
+                        bush8.health.Value = -1f;
+                        Pickaxe pickaxe = new() { UpgradeLevel = 3 };
+
+                        FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
+                        lastUserField.SetValue(pickaxe, Game1.player);
+
+
+                        bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
+                        bush8.performToolAction(pickaxe, 999, bush8.Tile);
+                        location.resourceClumps.RemoveAt(i);
+                    }
+
+                    for (int q = location.largeTerrainFeatures.Count - 1; q >= 0; q--)
+                    {
+                        LargeTerrainFeature featur = location.largeTerrainFeatures[q];
+                        if (featur is Bush bushq ) //&& bushq.getBoundingBox().Contains(nextPosition)
+                            //&& bushq.modData.ContainsKey(InventoryBush.BushModData))
+                        {
+                            bushq.health = -1f;
+                            Axe axe = new() { UpgradeLevel = 3 };
+
+                            FieldInfo lastUserField = AccessTools.Field(typeof(Axe), "lastUser");
+                            lastUserField.SetValue(axe, Game1.player);
+
+                            bushq.performToolAction(axe, 0, bushq.Tile);
+                            location.largeTerrainFeatures.RemoveAt(q);
+                        }
+                    }
+
+
+
                 }
             },
-            11100);
+            12200);
+            Game1.Multiplayer.broadcastSprites(location, TAS2);
             Game1.Multiplayer.broadcastSprites(location, TAS);
             DelayedAction.playSoundAfterDelay("ApryllForever.NuclearBomb_Blast", 11000, Game1.player.currentLocation, null);
 
