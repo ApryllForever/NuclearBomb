@@ -164,6 +164,15 @@ namespace NuclearBombs
         private static bool DoNukulerExplosionAnimation(GameLocation location, int x, int y, Farmer who)
         {
             Vector2 placementTile = new Vector2(x / 64, y / 64);
+
+            int placeX = Convert.ToInt32(placementTile.X);
+            int placeY = Convert.ToInt32(placementTile.Y);
+
+            Rectangle reccie = new Rectangle(  placeX -20, placeY - 20, 37, 37);
+
+            //BoundingBox boxxxy = new();
+
+
             foreach (TemporaryAnimatedSprite temporarySprite2 in location.temporarySprites)
             {
                 if (temporarySprite2.position.Equals(placementTile * 64f))
@@ -183,7 +192,7 @@ namespace NuclearBombs
             TemporaryAnimatedSprite TAS2 = new TemporaryAnimatedSprite(Nukebomb.parentSheetIndex, 100f, 1, 24, placementTile * 64f, flicker: true, flipped: false, location, who)
             {
                 delayBeforeAnimationStart = 10000,
-                bombRadius = 17,
+                bombRadius = 29,
                 bombDamage = 999,
                 shakeIntensity = 5f,
                 shakeIntensityChange = 0.2f,
@@ -209,6 +218,8 @@ namespace NuclearBombs
                 endFunction = location.removeTemporarySpritesWithID
             };
 
+            
+
             //Microsoft.Xna.Framework.Rectangle areaOfEffect = ????????;
 
             DelayedAction.functionAfterDelay(delegate
@@ -219,7 +230,7 @@ namespace NuclearBombs
                 for (int i = location.resourceClumps.Count - 1; i >= 0; i--)
                 {
                     ResourceClump feature = location.resourceClumps[i];
-                    if (feature is ResourceClump bush //&& bush.getBoundingBox().Contains(areaOfEffect)
+                    if (feature is ResourceClump bush && bush.getBoundingBox().Contains(reccie)
                         && bush.parentSheetIndex.Value == 600)
                     {
                         bush.health.Value = -1f;
@@ -234,7 +245,7 @@ namespace NuclearBombs
                         location.resourceClumps.RemoveAt(i);
                     }
 
-                    if (feature is ResourceClump bush2 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                    if (feature is ResourceClump bush2 && bush2.getBoundingBox().Contains(reccie)
                         && bush2.parentSheetIndex.Value == 602)
                     {
                         bush2.health.Value = -1f;
@@ -248,7 +259,7 @@ namespace NuclearBombs
                         bush2.performToolAction(axe, 999, bush2.Tile);
                         location.resourceClumps.RemoveAt(i);
                     }
-                    if (feature is ResourceClump bush3 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                    if (feature is ResourceClump bush3 && bush3.getBoundingBox().Contains(reccie)
                         && bush3.parentSheetIndex.Value == 672)
                     {
                         bush3.health.Value = -1f;
@@ -262,7 +273,7 @@ namespace NuclearBombs
                         bush3.performToolAction(pickaxe, 999, bush3.Tile);
                         location.resourceClumps.RemoveAt(i);
                     }
-                    if (feature is ResourceClump bush4 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                    if (feature is ResourceClump bush4 && bush4.getBoundingBox().Contains(reccie)
                       && bush4.parentSheetIndex.Value == 752)
                     {
                         bush4.health.Value = -1f;
@@ -276,7 +287,7 @@ namespace NuclearBombs
                         bush4.performToolAction(pickaxe, 999, bush4.Tile);
                         location.resourceClumps.RemoveAt(i);
                     }
-                    if (feature is ResourceClump bush5 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                    if (feature is ResourceClump bush5 && bush5.getBoundingBox().Contains(reccie)
                     && bush5.parentSheetIndex.Value == 754)
                     {
                         bush5.health.Value = -1f;
@@ -291,7 +302,7 @@ namespace NuclearBombs
                         location.resourceClumps.RemoveAt(i);
                     }
 
-                    if (feature is ResourceClump bush6 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                    if (feature is ResourceClump bush6 && bush6.getBoundingBox().Contains(reccie)
                    && bush6.parentSheetIndex.Value == 756)
                     {
                         bush6.health.Value = -1f;
@@ -305,7 +316,7 @@ namespace NuclearBombs
                         bush6.performToolAction(pickaxe, 999, bush6.Tile);
                         location.resourceClumps.RemoveAt(i);
                     }
-                    if (feature is ResourceClump bush7 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                    if (feature is ResourceClump bush7 && bush7.getBoundingBox().Contains(reccie)
                    && bush7.parentSheetIndex.Value == 758)
                     {
                         bush7.health.Value = -1f;
@@ -319,7 +330,7 @@ namespace NuclearBombs
                         bush7.performToolAction(pickaxe, 999, bush7.Tile);
                         location.resourceClumps.RemoveAt(i);
                     }
-                    if (feature is ResourceClump bush8 //&& bush.getBoundingBox().Contains(areaOfEffect)
+                    if (feature is ResourceClump bush8 && bush8.getBoundingBox().Contains(reccie)
                    && bush8.parentSheetIndex.Value == 622)
                     {
                         bush8.health.Value = -1f;
@@ -337,7 +348,7 @@ namespace NuclearBombs
                     for (int q = location.largeTerrainFeatures.Count - 1; q >= 0; q--)
                     {
                         LargeTerrainFeature featur = location.largeTerrainFeatures[q];
-                        if (featur is Bush bushq ) //&& bushq.getBoundingBox().Contains(nextPosition)
+                        if (featur is Bush bushq  && bushq.getBoundingBox().Contains(reccie))
                             //&& bushq.modData.ContainsKey(InventoryBush.BushModData))
                         {
                             bushq.health = -1f;
