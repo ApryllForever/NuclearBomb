@@ -19,5 +19,13 @@
 	</ItemGroup>
 	
 	
+	<ItemGroup>
+		<Reference Include="SpaceCore">
+			<HintPath>$(GameModsPath)\SpaceCore\SpaceCore.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+	
+	
 	
 </Project>

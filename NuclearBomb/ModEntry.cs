@@ -16,9 +16,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
 using StardewValley.Monsters;
-
-
-
+using NuclearBombs.Locations;
 using SpaceCore.Events;
 using SpaceCore.Interface;
 using StardewValley.TerrainFeatures;
@@ -27,6 +25,10 @@ using xTile;
 using StardewValley.Tools;
 using StardewValley.Network;
 using System.Reflection;
+using SpaceShared.APIs;
+using StardewModdingAPI.Enums;
+using StardewValley.Menus;
+using xTile.Layers;
 
 namespace NuclearBombs
 {
@@ -34,7 +36,7 @@ namespace NuclearBombs
     {
         public static string NukulerBomb = "Nuclear Bomb"; //"(O)ApryllForever.NuclearBombCP_NuclearBomb";
         internal static IMonitor? ModMonitor { get; set; }
-        internal new static IModHelper? Helper { get; set; }
+        internal static IModHelper? Helper { get; set; }
 
         private float totalTimer;
         private static bool x2;
@@ -47,10 +49,17 @@ namespace NuclearBombs
             ModMonitor = Monitor;
             Helper = helper;
 
-            //helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+            helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+            helper.Events.GameLoop.UpdateTicked += OnTickUpdated;
+            helper.Events.Content.AssetRequested += this.OnAssetRequested;
+
+            GameLocation.RegisterTouchAction("ApyllForever.NuclearBomb_NuclearShower", this.NuclearShower);
+            GameLocation.RegisterTouchAction("MermaidDress", this.MermaidDress);
+            GameLocation.RegisterTouchAction("MermaidUndress", this.MermaidUndress);
+
             //SpaceEvents.BombExploded += OnBombExploded;
 
-                               //Attempt using code based on Elizabeth's Pearl Code (Thx luv!!!). Complete Triumph!!!
+            //Attempt using code based on Elizabeth's Pearl Code (Thx luv!!!). Complete Triumph!!!
             harmony.Patch(
                original: AccessTools.Method(typeof(StardewValley.Object), nameof(StardewValley.Object.canBePlacedHere)),
                postfix: new HarmonyMethod(typeof(ModEntry), nameof(ModEntry.CanBePlacedHere_Postfix))
@@ -71,17 +80,93 @@ namespace NuclearBombs
             
         }
 
-       // private void OnGameLaunched(object sender, EventArgs e)
-        //{
+        private void NuclearShower(GameLocation location, string[] args, Farmer player, Vector2 tile)
+        {
+
+
+            // IAssetDataForMap mapHelper = ModEntry.Helper.GameContent.GetPatchHelper(location.map).AsMap();
+            // mapHelper.PatchMap(
+            //  ModEntry.Helper.GameContent.Load<Map>("assets/Blank.tmx"),
+            // targetArea: new Rectangle((int)tile.X - 1, (int)tile.Y - 1, 2, 2),
+            // patchMode: PatchMapMode.Replace
+            //);
+            
+            Game1.playSound("doorCreak");
+            Game1.playSound("ApryllForever.NuclearBomb_Shower");
+
+           
+
+        }
+
+        private void MermaidUndress(GameLocation location, string[] args, Farmer player, Vector2 tile)
+        {
+            Game1.player.bathingClothes.Value = true;
+        }
+
+        private void MermaidDress(GameLocation location, string[] args, Farmer player, Vector2 tile)
+        {
+            Game1.player.bathingClothes.Value = false;
+        }
+
+        private void OnGameLaunched(object sender, EventArgs e)
+        {
+            ModEntry.Helper = Helper;
+            // ModEntry.Monitor = Monitor;
+
+            var sc = Helper.ModRegistry.GetApi<ISpaceCoreApi>("spacechase0.SpaceCore");
+            //sc.RegisterSerializerType(typeof(NuclearLocation));
+            //sc.RegisterSerializerType(typeof(AtomicScienceSilo));
+            //sc.RegisterSerializerType(typeof(AdvancedAtomicScienceSilo));
+
+          
+
+
             //NuclearBomb.Initialize(this);
-        //}
+        }
 
-       //public static void OnBombExploded(object sender, EventArgsBombExploded e)
-        //{
 
-        //}
+       public static void OnTickUpdated(object sender, EventArgs e)
 
-        private static void CanBePlacedHere_Postfix(StardewValley.Object __instance, GameLocation l, Vector2 tile, ref bool __result)
+        { 
+        
+       // if (Game1.player.currentLocation.Equals("Custom_AtomicScienceSilo") || Game1.player.currentLocation.Equals("Custom_AdvancedAtomicScienceSilo"))
+          //  {
+
+
+
+           // }
+        
+        
+        
+        
+        
+        
+        
+        
+        }
+
+
+        public void OnAssetRequested(object sender, AssetRequestedEventArgs e)
+        {
+            e.Edit(asset =>
+    {
+        //var editor = asset.AsMap();
+
+       // Map sourceMap = ModEntry.Helper.ModContent.Load<Map>("AtomicScienceSilo.tmx");
+        //Map sourceMap2 = ModEntry.Helper.ModContent.Load<Map>("AtomicScienceSilo.tmx");
+        //editor.PatchMap(sourceMap, targetArea: new Rectangle(30, 10, 20, 20));
+    });
+
+        }
+
+
+
+                //public static void OnBombExploded(object sender, EventArgsBombExploded e)
+                //{
+
+                //}
+
+                private static void CanBePlacedHere_Postfix(StardewValley.Object __instance, GameLocation l, Vector2 tile, ref bool __result)
         {
             // Not our item, we don't care
             if (!__instance.Name.Contains(NukulerBomb, StringComparison.OrdinalIgnoreCase) || __instance.bigCraftable.Value)
@@ -165,10 +250,10 @@ namespace NuclearBombs
         {
             Vector2 placementTile = new Vector2(x / 64, y / 64);
 
-            int placeX = Convert.ToInt32(placementTile.X);
-            int placeY = Convert.ToInt32(placementTile.Y);
+           // int placeX = Convert.ToInt32(placementTile.X);
+            //int placeY = Convert.ToInt32(placementTile.Y);
 
-            Rectangle reccie = new Rectangle(  placeX -20, placeY - 20, 37, 37);
+           // Rectangle reccie = new Rectangle(  placeX -20, placeY - 20, 37, 37);
 
             //BoundingBox boxxxy = new();
 
@@ -186,16 +271,16 @@ namespace NuclearBombs
 
             Game1.changeMusicTrack("none", false, StardewValley.GameData.MusicContext.Default);
 
-            StardewValley.Object Nukebomb = new StardewValley.Object("ApryllForever.NuclearBombCP_NuclearBomb", 1);
+            StardewValley.Object Nukebomb = new StardewValley.Object("ApryllForever.NuclearBombCP_NuclearBomb", 1); //Nukebomb.parentSheetIndex
 
 
-            TemporaryAnimatedSprite TAS2 = new TemporaryAnimatedSprite(Nukebomb.parentSheetIndex, 100f, 1, 24, placementTile * 64f, flicker: true, flipped: false, location, who)
+            TemporaryAnimatedSprite TAS2 = new TemporaryAnimatedSprite(11429, 100f, 1, 24, placementTile * 64f, flicker: true, flipped: false, location, who)
             {
                 delayBeforeAnimationStart = 10000,
-                bombRadius = 29,
+                bombRadius = 31,
                 bombDamage = 999,
-                shakeIntensity = 5f,
-                shakeIntensityChange = 0.2f,
+                shakeIntensity = 1f,
+                shakeIntensityChange = 0.0002f,
                 color = Color.LightGoldenrodYellow,
 
                 extraInfoForEndBehavior = idNum,
@@ -204,15 +289,15 @@ namespace NuclearBombs
 
 
 
-            TemporaryAnimatedSprite TAS = new TemporaryAnimatedSprite(Nukebomb.parentSheetIndex, 100f, 1, 24, placementTile * 64f, flicker: true, flipped: false, location, who)
+            TemporaryAnimatedSprite TAS = new TemporaryAnimatedSprite(11429, 100f, 1, 24, placementTile * 64f, flicker: true, flipped: false, location, who)
             {
                 delayBeforeAnimationStart = 11000,
-                bombRadius = 37,
+                bombRadius = 41,
                 bombDamage = 999,
-                shakeIntensity = 5f,
-                shakeIntensityChange = 0.2f,
+                shakeIntensity = 1f,
+                shakeIntensityChange = 0.002f,
                 color = Color.LightCoral,
-                
+               
                 
                 extraInfoForEndBehavior = idNum,
                 endFunction = location.removeTemporarySpritesWithID
@@ -226,130 +311,163 @@ namespace NuclearBombs
             {
 
 
+                int placeX = Convert.ToInt32(placementTile.X);
+                int placeY = Convert.ToInt32(placementTile.Y);
+
+                Rectangle reccie = new Rectangle(placeX - 20, placeY - 20, 37, 37);
+
+                //reccie.
 
                 for (int i = location.resourceClumps.Count - 1; i >= 0; i--)
                 {
                     ResourceClump feature = location.resourceClumps[i];
-                    if (feature is ResourceClump bush && bush.getBoundingBox().Contains(reccie)
+                    if (feature is ResourceClump bush //bush.getBoundingBox().Contains(reccie)
                         && bush.parentSheetIndex.Value == 600)
                     {
-                        bush.health.Value = -1f;
-                        Axe axe = new() { UpgradeLevel = 3 };
+                        if (Vector2.DistanceSquared(bush.Tile, placementTile) < (1600))  //(Math.Sqrt((bush.Tile.X - placementTile.X) + (bush.Tile.Y - placementTile.Y)) >= 0)
 
-                        FieldInfo lastUserField = AccessTools.Field(typeof(Axe), "lastUser");
-                        lastUserField.SetValue(axe, Game1.player);
+                        {
+                            bush.health.Value = -1f;
+                            Axe axe = new() { UpgradeLevel = 3 };
+
+                            FieldInfo lastUserField = AccessTools.Field(typeof(Axe), "lastUser");
+                            lastUserField.SetValue(axe, Game1.player);
 
 
-                        bool x2 = axe.getLastFarmerToUse() == Game1.player;
-                        bush.performToolAction(axe, 999, bush.Tile);
-                        location.resourceClumps.RemoveAt(i);
+                            bool x2 = axe.getLastFarmerToUse() == Game1.player;
+                            bush.performToolAction(axe, 999, bush.Tile);
+                            location.resourceClumps.RemoveAt(i);
+                        }
                     }
 
-                    if (feature is ResourceClump bush2 && bush2.getBoundingBox().Contains(reccie)
+                    if (feature is ResourceClump bush2 //&& bush2.getBoundingBox().Contains(reccie)
                         && bush2.parentSheetIndex.Value == 602)
                     {
-                        bush2.health.Value = -1f;
-                        Axe axe = new() { UpgradeLevel = 3 };
+                        if (Vector2.DistanceSquared(bush2.Tile, placementTile) < (1600))
+                        {
+                            bush2.health.Value = -1f;
+                            Axe axe = new() { UpgradeLevel = 3 };
 
-                        FieldInfo lastUserField = AccessTools.Field(typeof(Axe), "lastUser");
-                        lastUserField.SetValue(axe, Game1.player);
+                            FieldInfo lastUserField = AccessTools.Field(typeof(Axe), "lastUser");
+                            lastUserField.SetValue(axe, Game1.player);
 
 
-                        bool x2 = axe.getLastFarmerToUse() == Game1.player;
-                        bush2.performToolAction(axe, 999, bush2.Tile);
-                        location.resourceClumps.RemoveAt(i);
+                            bool x2 = axe.getLastFarmerToUse() == Game1.player;
+                            bush2.performToolAction(axe, 999, bush2.Tile);
+                            location.resourceClumps.RemoveAt(i);
+                        }
                     }
-                    if (feature is ResourceClump bush3 && bush3.getBoundingBox().Contains(reccie)
+                    if (feature is ResourceClump bush3 //&& bush3.getBoundingBox().Contains(reccie)
                         && bush3.parentSheetIndex.Value == 672)
-                    {
-                        bush3.health.Value = -1f;
-                        Pickaxe pickaxe = new() { UpgradeLevel = 3 };
+                       
+                        {
+                        if (Vector2.DistanceSquared(bush3.Tile, placementTile) < (1600))
+                        {
+                                bush3.health.Value = -1f;
+                                Pickaxe pickaxe = new() { UpgradeLevel = 3 };
 
-                        FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
-                        lastUserField.SetValue(pickaxe, Game1.player);
+                                FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
+                                lastUserField.SetValue(pickaxe, Game1.player);
 
 
-                        bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
-                        bush3.performToolAction(pickaxe, 999, bush3.Tile);
-                        location.resourceClumps.RemoveAt(i);
-                    }
-                    if (feature is ResourceClump bush4 && bush4.getBoundingBox().Contains(reccie)
+                                bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
+                                bush3.performToolAction(pickaxe, 999, bush3.Tile);
+                                location.resourceClumps.RemoveAt(i);
+                            }
+                        }
+                    if (feature is ResourceClump bush4 //&& bush4.getBoundingBox().Contains(reccie)
                       && bush4.parentSheetIndex.Value == 752)
                     {
-                        bush4.health.Value = -1f;
-                        Pickaxe pickaxe = new() { UpgradeLevel = 3 };
 
-                        FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
-                        lastUserField.SetValue(pickaxe, Game1.player);
+                        if (Vector2.DistanceSquared(bush4.Tile, placementTile) < (1600))
+                        {
+                            bush4.health.Value = -1f;
+                            Pickaxe pickaxe = new() { UpgradeLevel = 3 };
+
+                            FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
+                            lastUserField.SetValue(pickaxe, Game1.player);
 
 
-                        bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
-                        bush4.performToolAction(pickaxe, 999, bush4.Tile);
-                        location.resourceClumps.RemoveAt(i);
+                            bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
+                            bush4.performToolAction(pickaxe, 999, bush4.Tile);
+                            location.resourceClumps.RemoveAt(i);
+                        }
                     }
-                    if (feature is ResourceClump bush5 && bush5.getBoundingBox().Contains(reccie)
+                    if (feature is ResourceClump bush5 //&& bush5.getBoundingBox().Contains(reccie)
                     && bush5.parentSheetIndex.Value == 754)
+
                     {
-                        bush5.health.Value = -1f;
-                        Pickaxe pickaxe = new() { UpgradeLevel = 3 };
+                        if (Vector2.DistanceSquared(bush5.Tile, placementTile) < (1600))
+                        {
+                            bush5.health.Value = -1f;
+                            Pickaxe pickaxe = new() { UpgradeLevel = 3 };
 
-                        FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
-                        lastUserField.SetValue(pickaxe, Game1.player);
+                            FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
+                            lastUserField.SetValue(pickaxe, Game1.player);
 
 
-                        bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
-                        bush5.performToolAction(pickaxe, 999, bush5.Tile);
-                        location.resourceClumps.RemoveAt(i);
+                            bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
+                            bush5.performToolAction(pickaxe, 999, bush5.Tile);
+                            location.resourceClumps.RemoveAt(i);
+                        }
                     }
 
-                    if (feature is ResourceClump bush6 && bush6.getBoundingBox().Contains(reccie)
+                    if (feature is ResourceClump bush6 //&& bush6.getBoundingBox().Contains(reccie)
                    && bush6.parentSheetIndex.Value == 756)
                     {
-                        bush6.health.Value = -1f;
-                        Pickaxe pickaxe = new() { UpgradeLevel = 3 };
+                        if (Vector2.DistanceSquared(bush6.Tile, placementTile) < (1600))
+                        {
+                            bush6.health.Value = -1f;
+                            Pickaxe pickaxe = new() { UpgradeLevel = 3 };
 
-                        FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
-                        lastUserField.SetValue(pickaxe, Game1.player);
+                            FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
+                            lastUserField.SetValue(pickaxe, Game1.player);
 
 
-                        bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
-                        bush6.performToolAction(pickaxe, 999, bush6.Tile);
-                        location.resourceClumps.RemoveAt(i);
+                            bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
+                            bush6.performToolAction(pickaxe, 999, bush6.Tile);
+                            location.resourceClumps.RemoveAt(i);
+                        }
                     }
-                    if (feature is ResourceClump bush7 && bush7.getBoundingBox().Contains(reccie)
+                    if (feature is ResourceClump bush7 //&& bush7.getBoundingBox().Contains(reccie)
                    && bush7.parentSheetIndex.Value == 758)
                     {
-                        bush7.health.Value = -1f;
-                        Pickaxe pickaxe = new() { UpgradeLevel = 3 };
+                        if (Vector2.DistanceSquared(bush7.Tile, placementTile) < (1600))
+                        {
+                            bush7.health.Value = -1f;
+                            Pickaxe pickaxe = new() { UpgradeLevel = 3 };
 
-                        FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
-                        lastUserField.SetValue(pickaxe, Game1.player);
+                            FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
+                            lastUserField.SetValue(pickaxe, Game1.player);
 
 
-                        bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
-                        bush7.performToolAction(pickaxe, 999, bush7.Tile);
-                        location.resourceClumps.RemoveAt(i);
+                            bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
+                            bush7.performToolAction(pickaxe, 999, bush7.Tile);
+                            location.resourceClumps.RemoveAt(i);
+                        }
                     }
-                    if (feature is ResourceClump bush8 && bush8.getBoundingBox().Contains(reccie)
+                    if (feature is ResourceClump bush8 //&& bush8.getBoundingBox().Contains(reccie)
                    && bush8.parentSheetIndex.Value == 622)
                     {
-                        bush8.health.Value = -1f;
-                        Pickaxe pickaxe = new() { UpgradeLevel = 3 };
+                        if (Vector2.DistanceSquared(bush8.Tile, placementTile) < (1600))
+                        {
+                            bush8.health.Value = -1f;
+                            Pickaxe pickaxe = new() { UpgradeLevel = 3 };
 
-                        FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
-                        lastUserField.SetValue(pickaxe, Game1.player);
+                            FieldInfo lastUserField = AccessTools.Field(typeof(Pickaxe), "lastUser");
+                            lastUserField.SetValue(pickaxe, Game1.player);
 
 
-                        bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
-                        bush8.performToolAction(pickaxe, 999, bush8.Tile);
-                        location.resourceClumps.RemoveAt(i);
+                            bool x2 = pickaxe.getLastFarmerToUse() == Game1.player;
+                            bush8.performToolAction(pickaxe, 999, bush8.Tile);
+                            location.resourceClumps.RemoveAt(i);
+                        }
                     }
 
                     for (int q = location.largeTerrainFeatures.Count - 1; q >= 0; q--)
                     {
                         LargeTerrainFeature featur = location.largeTerrainFeatures[q];
-                        if (featur is Bush bushq  && bushq.getBoundingBox().Contains(reccie))
-                            //&& bushq.modData.ContainsKey(InventoryBush.BushModData))
+                        if (featur is Bush bushq && (Vector2.DistanceSquared(bushq.Tile, placementTile) < (1600))) 
                         {
                             bushq.health = -1f;
                             Axe axe = new() { UpgradeLevel = 3 };
