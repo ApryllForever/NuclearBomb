@@ -16,7 +16,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
 using StardewValley.Monsters;
-using NuclearBombs.Locations;
 using SpaceCore.Events;
 using SpaceCore.Interface;
 using StardewValley.TerrainFeatures;
@@ -37,9 +36,6 @@ namespace NuclearBombs
         public static string NukulerBomb = "Nuclear Bomb"; //"(O)ApryllForever.NuclearBombCP_NuclearBomb";
         internal static IMonitor? ModMonitor { get; set; }
         internal static IModHelper? Helper { get; set; }
-
-        private float totalTimer;
-        private static bool x2;
 
         public override void Entry(IModHelper helper)
         {
