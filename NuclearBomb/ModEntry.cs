@@ -144,7 +144,13 @@ namespace NuclearBombs
 
         public void OnAssetRequested(object sender, AssetRequestedEventArgs e)
         {
-            e.Edit(asset =>
+
+           
+
+                //Maps\Custom_SlimeTentInside
+
+
+                e.Edit(asset =>
     {
         //var editor = asset.AsMap();
 
@@ -186,7 +192,7 @@ namespace NuclearBombs
         {
 
             Vector2 placementTile = new Vector2(x, y);
-            Game1.player.Position = placementTile;
+            //Game1.player.Position = placementTile;
 
             // Not our item, we don't care
             if (!__instance.Name.Contains(NukulerBomb, StringComparison.OrdinalIgnoreCase) || __instance.bigCraftable.Value)
