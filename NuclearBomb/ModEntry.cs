@@ -28,6 +28,8 @@ using SpaceShared.APIs;
 using StardewModdingAPI.Enums;
 using StardewValley.Menus;
 using xTile.Layers;
+using Microsoft.Xna.Framework.Audio;
+using StardewValley.Objects;
 
 namespace NuclearBombs
 {
@@ -36,6 +38,8 @@ namespace NuclearBombs
         public static string NukulerBomb = "Nuclear Bomb"; //"(O)ApryllForever.NuclearBombCP_NuclearBomb";
         internal static IMonitor? ModMonitor { get; set; }
         internal static IModHelper? Helper { get; set; }
+
+        public bool MarisolMail8Heart = false;
 
         public override void Entry(IModHelper helper)
         {
@@ -49,9 +53,13 @@ namespace NuclearBombs
             helper.Events.GameLoop.UpdateTicked += OnTickUpdated;
             helper.Events.Content.AssetRequested += this.OnAssetRequested;
 
+            helper.Events.GameLoop.DayEnding += OnDayEnding;
+
             GameLocation.RegisterTouchAction("ApyllForever.NuclearBomb_NuclearShower", this.NuclearShower);
             GameLocation.RegisterTouchAction("MermaidDress", this.MermaidDress);
             GameLocation.RegisterTouchAction("MermaidUndress", this.MermaidUndress);
+            SpaceEvents.OnEventFinished += OnEventFinished;
+            SpaceEvents.BeforeGiftGiven += AforeGiftGiven;
 
             //SpaceEvents.BombExploded += OnBombExploded;
 
@@ -73,7 +81,11 @@ namespace NuclearBombs
                postfix: new HarmonyMethod(typeof(ModEntry), nameof(ModEntry.IsPlaceable_Postfix))
             );
 
-            
+           // harmony.Patch(
+               // original: AccessTools.Method(typeof(Furniture), "loadDescription"),
+                //prefix: new HarmonyMethod(typeof (ModEntry), nameof(loadDescription_Prefix)));
+
+
         }
 
         private void NuclearShower(GameLocation location, string[] args, Farmer player, Vector2 tile)
@@ -120,8 +132,69 @@ namespace NuclearBombs
             //NuclearBomb.Initialize(this);
         }
 
+        public static void AforeGiftGiven(object sender, EventArgsBeforeReceiveObject e)
+        {
 
-       public static void OnTickUpdated(object sender, EventArgs e)
+            if (sender != Game1.player)
+                return;
+            var marya = Game1.getCharacterFromName("MermaidRangerMarisol");
+
+            if (e.Npc.Equals(marya))
+            {
+                // if(e.Gift.Equals(342))
+                if (e.Gift.ParentSheetIndex == 458)
+                {
+                    if (Game1.player.eventsSeen.Contains("NuclearMarisol8Heart"))
+                        return;
+                    marya.CurrentDialogue.Push(new Dialogue(marya, "Strings\\StringsFromCSFiles:Marisol.Bouquet.cs.3962"));
+                    Game1.drawDialogue(marya);
+                    Friendship friendship = Game1.player.friendshipData["MermaidRangerMarisol"];
+                    if (!friendship.IsDating())
+                    {
+                        friendship.Status = FriendshipStatus.Friendly;
+
+                    }
+                    e.Cancel = true;
+
+                }
+            }
+        }
+
+        static void OnEventFinished(object sender, EventArgs e)
+        {
+            if (!Game1.player.IsMainPlayer)
+                return;
+
+            switch (Game1.CurrentEvent.id)
+            {
+               
+
+                case "MermaidRangerMarisolDatingEvent":
+
+                    
+                        Friendship friendship = Game1.player.friendshipData["MermaidRangerMarisol"];
+                        friendship.Status = FriendshipStatus.Dating;
+                    
+                    break;
+
+
+
+
+
+                    /*
+				case MermaidConstants.E_OPENPORTAL:
+					UtilFunctions.TryCompleteQuest(MermaidConstants.Q_OPENPORTAL);
+					if (Game1.player.IsMainPlayer)
+					{
+						Game1.player.team.specialOrders.Add(SpecialOrder.GetSpecialOrder(MermaidConstants.SO_CLEANSING, null));
+					}
+					break;  */
+
+
+            }
+
+        }
+            public static void OnTickUpdated(object sender, EventArgs e)
 
         { 
         
@@ -271,7 +344,12 @@ namespace NuclearBombs
             int idNum = Game1.random.Next();
             location.playSound("thudStep");
 
+            //Game1.currentSong.Stop(AudioStopOptions.Immediate);
+
             Game1.changeMusicTrack("none", false, StardewValley.GameData.MusicContext.Default);
+            Game1.changeMusicTrack("none", false, StardewValley.GameData.MusicContext.SubLocation);
+            Game1.changeMusicTrack("none", false, StardewValley.GameData.MusicContext.MAX);
+            Game1.changeMusicTrack("none", false, StardewValley.GameData.MusicContext.ImportantSplitScreenMusic);
 
             StardewValley.Object Nukebomb = new StardewValley.Object("ApryllForever.NuclearBombCP_NuclearBomb", 1); //Nukebomb.parentSheetIndex
 
@@ -489,10 +567,74 @@ namespace NuclearBombs
             12200);
             Game1.Multiplayer.broadcastSprites(location, TAS2);
             Game1.Multiplayer.broadcastSprites(location, TAS);
-            DelayedAction.playSoundAfterDelay("ApryllForever.NuclearBomb_Blast", 11000, Game1.player.currentLocation, null);
+            DelayedAction.playSoundAfterDelay("ApryllForever.NuclearBomb_Blast", 11000, Game1.player.currentLocation, null
+            
+            );
 
 
             return true;
         }
-    }
+
+
+
+        private void OnDayEnding(object sender, DayEndingEventArgs e)
+        {
+            int hearts;
+            hearts = Game1.player.getFriendshipHeartLevelForNPC("Alla");
+
+
+
+            //string alla = Game1.currentLocation.getCharacterFromName("Alla");
+            if (hearts > 7 && MarisolMail8Heart == false && !Game1.player.eventsSeen.Contains("NuclearMarisol8Heart"))
+                Game1.player.mailForTomorrow.Add("NuclearBombCP.Marisol8HeartInvite");
+
+
+        }
+
+
+
+
+
+            /*
+            private static bool loadDescription_Prefix()
+            {
+
+                if (Game1.player.hasMenuOpen == false)
+                {
+                    return true;
+                }
+
+
+
+
+               if (Game1.player.mostRecentlyGrabbedItem.Name != ("FrigateOnAWave") )
+                { 
+                    return true; 
+                }
+
+
+                Game1.parseText(Game1.content.LoadString("Strings\\Objects:FrigateOnAWaveDescription"), Game1.smallFont, 320);
+
+                return false;
+            }
+
+            */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
 }
