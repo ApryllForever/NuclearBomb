@@ -41,6 +41,8 @@ namespace NuclearBombs
 
         public bool MarisolMail8Heart = false;
 
+        public bool MarisolMail10Heart = false;
+
         public override void Entry(IModHelper helper)
         {
 
@@ -155,6 +157,24 @@ namespace NuclearBombs
 
                     }
                     e.Cancel = true;
+
+                }
+                if(e.Gift.ParentSheetIndex == 460)
+                {
+
+                    if (Game1.player.eventsSeen.Contains("NuclearMarisol10Heart"))
+                        return;
+                    marya.CurrentDialogue.Push(new Dialogue(marya, "Strings\\StringsFromCSFiles:Marisol.Pendant.cs.3962"));
+                    Game1.drawDialogue(marya);
+                    Friendship friendship = Game1.player.friendshipData["MermaidRangerMarisol"];
+                    if (!friendship.IsEngaged())
+                    {
+                        friendship.Status = FriendshipStatus.Dating;
+
+                    }
+                    e.Cancel = true;
+
+
 
                 }
             }
@@ -580,15 +600,18 @@ namespace NuclearBombs
         private void OnDayEnding(object sender, DayEndingEventArgs e)
         {
             int hearts;
-            hearts = Game1.player.getFriendshipHeartLevelForNPC("Alla");
+            hearts = Game1.player.getFriendshipHeartLevelForNPC("MermaidRangerMarisol");
 
 
 
             //string alla = Game1.currentLocation.getCharacterFromName("Alla");
             if (hearts > 7 && MarisolMail8Heart == false && !Game1.player.eventsSeen.Contains("NuclearMarisol8Heart"))
                 Game1.player.mailForTomorrow.Add("NuclearBombCP.Marisol8HeartInvite");
+            MarisolMail8Heart = true;
 
-
+            if (hearts >= 10 && MarisolMail10Heart == false && !Game1.player.eventsSeen.Contains("NuclearMarisol10Heart"))
+                Game1.player.mailForTomorrow.Add("NuclearBombCP.Marisol10HeartInvite");
+                //MarisolMail10Heart = true;
         }
 
 
