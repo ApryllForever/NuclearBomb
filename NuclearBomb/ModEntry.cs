@@ -609,7 +609,7 @@ namespace NuclearBombs
                 Game1.player.mailForTomorrow.Add("NuclearBombCP.Marisol8HeartInvite");
             MarisolMail8Heart = true;
 
-            if (hearts >= 10 && MarisolMail10Heart == false && !Game1.player.eventsSeen.Contains("NuclearMarisol10Heart"))
+            if (hearts >= 10 && MarisolMail10Heart == false && !Game1.player.eventsSeen.Contains("NuclearMarisol10Heart") && !Game1.player.mailReceived.Contains("NuclearBombCP.Marisol10HeartInvite"))
                 Game1.player.mailForTomorrow.Add("NuclearBombCP.Marisol10HeartInvite");
                 //MarisolMail10Heart = true;
         }
